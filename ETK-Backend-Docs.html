@@ -1,0 +1,1647 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="etkilla-backend-dev-docs">Etkilla Backend Dev Docs</h1>
+<p>This documentation is for backend internal development team, it should include information about the architecture, models, entities and API endpoints that composes the project.</p>
+<h2 id="index">Index</h2>
+<ul>
+<li>
+<h3 id="endpoints"><a href="#Endpoints">Endpoints</a></h3>
+</li>
+<li>
+<h3 id="dtos"><a href="#DTOs">DTOs</a></h3>
+</li>
+<li>
+<h3 id="responses"><a href="#Responses">Responses</a></h3>
+</li>
+<li>
+<h3 id="entities"><a href="#Entities">Entities</a></h3>
+</li>
+<li>
+<h3 id="enums"><a href="#Enums">Enums</a></h3>
+</li>
+<li>
+<h3 id="tools"><a href="#Tools">Tools</a></h3>
+</li>
+</ul>
+<h2 id="endpoints-1">Endpoints</h2>
+<p>This section gives information about the <strong>API</strong> endpoints.<br>
+The given info is separated by controller containing key data about the <strong>request type</strong>, <strong>request models</strong>, <strong>responses</strong>, etc.<br>
+All the info about the response will be included in the <strong><a href="#Responses">response section</a></strong>.</p>
+<h3 id="internal-index">Internal Index</h3>
+<ul>
+<li>
+<h4 id="authcontroller"><a href="#AuthController">AuthController</a></h4>
+</li>
+<li>
+<h4 id="emailcontroller"><a href="#EmailController">EmailController</a></h4>
+</li>
+<li>
+<h4 id="imgurcontroller"><a href="#ImgurController">ImgurController</a></h4>
+</li>
+<li>
+<h4 id="notificationscontroller"><a href="#NotificationsController">NotificationsController</a></h4>
+</li>
+<li>
+<h4 id="pushcontroller"><a href="#PushController">PushController</a></h4>
+</li>
+<li>
+<h4 id="userscontroller"><a href="#UsersController">UsersController</a></h4>
+</li>
+</ul>
+<h3 id="authcontroller-1">AuthController</h3>
+<p>This controller is the core piece of <strong>authentication</strong> and <strong>authorization</strong> on ETK, his main task is about getting and keeping the <strong>user logged in the app</strong>.</p>
+<h4 id="endpoints-2">Endpoints:</h4>
+<h4 id="login">Login</h4>
+<p>This endpoint checks if the given information corresponds to a real <strong>DB</strong> user and returns a <strong>JWT Token</strong>.</p>
+
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Type</th>
+<th>Body</th>
+<th>Authorization</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/auth/login</td>
+<td><strong>POST</strong></td>
+<td><strong>LoginDTO</strong></td>
+<td>None</td>
+<td>ResponseModel[String]</td>
+</tr>
+</tbody>
+</table><h4 id="health">Health</h4>
+<p>This endpoint checks if the <strong>server</strong> is actually running.</p>
+
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Type</th>
+<th>Body</th>
+<th>Authorization</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/auth/health</td>
+<td><strong>GET</strong></td>
+<td>None</td>
+<td>None</td>
+<td>Response</td>
+</tr>
+</tbody>
+</table><h4 id="renew">Renew</h4>
+<p>This endpoint sends a new <strong>JWT Token</strong> if the <strong>logged user</strong> has a <strong>valid session</strong>.</p>
+
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Type</th>
+<th>Body</th>
+<th>Authorization</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/auth/renew</td>
+<td><strong>GET</strong></td>
+<td>None</td>
+<td>User</td>
+<td>ResponseModel[String]</td>
+</tr>
+</tbody>
+</table><h4 id="generate">Generate</h4>
+<p>This endpoint generates a <strong>QR Code</strong> and returns it, creating an entry in the <strong>DB</strong> for that code to be used.</p>
+
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Type</th>
+<th>Body</th>
+<th>Authorization</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/auth/generate/{code}</td>
+<td><strong>GET</strong></td>
+<td>None</td>
+<td>None</td>
+<td>IMG/PNG</td>
+</tr>
+</tbody>
+</table><h4 id="login-qr">Login QR</h4>
+<p>This endpoint sends a <strong>JWT Token</strong> if the <strong>given code matches</strong> with any valid <strong>QR Code</strong> entry in the <strong>DB</strong>.</p>
+
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Type</th>
+<th>Body</th>
+<th>Authorization</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/auth/loginqr{code}</td>
+<td><strong>GET</strong></td>
+<td>None</td>
+<td>None</td>
+<td>ResponseModel[String]</td>
+</tr>
+</tbody>
+</table><h4 id="scan-qr">Scan QR</h4>
+<p>This endpoint verifies the <strong>QR Code</strong> entry in the <strong>DB</strong> that <strong>matches with the given code</strong>, assigning the <strong>current session</strong> user’s <strong>email</strong> to it.</p>
+
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Type</th>
+<th>Body</th>
+<th>Authorization</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/auth/scanqr{code}</td>
+<td><strong>GET</strong></td>
+<td>None</td>
+<td>User</td>
+<td>Response</td>
+</tr>
+</tbody>
+</table><h3 id="emailcontroller-1">EmailController</h3>
+<p>This controller is in charge of sending any kind of <strong>email</strong> to the <strong>users</strong>.</p>
+<h4 id="endpoints-3">Endpoints:</h4>
+<h4 id="send">Send</h4>
+<p>This endpoint sends the given <strong>HTML format email</strong> to the given <strong>email address</strong>.\</p>
+
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Type</th>
+<th>Body</th>
+<th>Authorization</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/email/sendverificationemail</td>
+<td><strong>POST</strong></td>
+<td>VerificationEmailDTO</td>
+<td>None</td>
+<td>Response</td>
+</tr>
+</tbody>
+</table><h3 id="imgurcontroller-1">ImgurController</h3>
+<p>This controller is in charge of <strong>interacting</strong> with the <strong>ImgurAPI</strong>.</p>
+<h4 id="endpoints-4">Endpoints:</h4>
+<h4 id="upload-image">Upload Image</h4>
+<p>This endpoint sends the given <strong>Image file</strong> to the <strong>Imgur servers</strong> returning the link for that image.</p>
+
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Type</th>
+<th>Body</th>
+<th>Authorization</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/imgur/upload</td>
+<td><strong>POST</strong></td>
+<td>VerificationEmailDTO</td>
+<td>None</td>
+<td>String</td>
+</tr>
+</tbody>
+</table><h3 id="notificationscontroller-1">NotificationsController</h3>
+<p>This controller is in charge of the <strong>local notifications</strong>.</p>
+<h4 id="endpoints-5">Endpoints:</h4>
+<h4 id="get-by-user">Get By User</h4>
+<p>This endpoint returns all the local notifications according to the given user’s email.</p>
+
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Type</th>
+<th>Body</th>
+<th>Authorization</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/notifications/getbyuser/{email}</td>
+<td><strong>GET</strong></td>
+<td>None</td>
+<td>None</td>
+<td>ResponseCollection[NotificationDTO]</td>
+</tr>
+</tbody>
+</table><h3 id="pushcontroller-1">PushController</h3>
+<p>This controller is in charge of <strong>sending</strong> the <strong>push notifications</strong> for the <strong>mobile app</strong>.</p>
+<h4 id="endpoints-6">Endpoints:</h4>
+<h4 id="send-notification">Send Notification</h4>
+<p>This endpoint sends the given <strong>message</strong> to the given <strong>device token</strong>.</p>
+
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Type</th>
+<th>Body</th>
+<th>Authorization</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/push/send</td>
+<td><strong>POST</strong></td>
+<td>NotificationRequestDTO</td>
+<td>None</td>
+<td>OK</td>
+</tr>
+</tbody>
+</table><h3 id="userscontroller-1">UsersController</h3>
+<p>This controller is in charge of <strong>collect</strong> and <strong>give</strong> all the <strong>information</strong> about <strong>users</strong> in the <strong>app</strong>.</p>
+<h4 id="endpoints-7">Endpoints:</h4>
+<h4 id="register">Register</h4>
+<p>This endpoint <strong>registers</strong> a new <strong>user</strong> in the <strong>DB</strong> with the given <strong>information</strong>.</p>
+
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Type</th>
+<th>Body</th>
+<th>Authorization</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/users/register</td>
+<td><strong>POST</strong></td>
+<td>RegisterDTO</td>
+<td>None</td>
+<td>Response</td>
+</tr>
+</tbody>
+</table><h4 id="change-password">Change Password</h4>
+<p>This endpoint <strong>changes</strong> the <strong>password</strong> of the given <strong>user</strong> for the new <strong>provided one</strong>.</p>
+
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Type</th>
+<th>Body</th>
+<th>Authorization</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/users/changepassword</td>
+<td><strong>POST</strong></td>
+<td>ChangePasswordDTO</td>
+<td>None</td>
+<td>Response</td>
+</tr>
+</tbody>
+</table><h4 id="change-role">Change Role</h4>
+<p>This endpoint <strong>changes</strong> the <strong>role</strong> of the given <strong>user</strong> for the new <strong>provided one</strong>.</p>
+
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Type</th>
+<th>Body</th>
+<th>Authorization</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/users/changerole</td>
+<td><strong>POST</strong></td>
+<td>ChangeRoleDTO</td>
+<td>ADMIN</td>
+<td>Response</td>
+</tr>
+</tbody>
+</table><h4 id="change-phone">Change Phone</h4>
+<p>This endpoint <strong>changes</strong> the <strong>phone</strong> of the current <strong>user</strong> for the new <strong>provided one</strong>.</p>
+
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Type</th>
+<th>Body</th>
+<th>Authorization</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/users/changephone</td>
+<td><strong>POST</strong></td>
+<td>ChangePhoneDTO</td>
+<td>User</td>
+<td>Response</td>
+</tr>
+</tbody>
+</table><h4 id="data">Data</h4>
+<p>This endpoint <strong>returns</strong> all the <strong>information</strong> of the current <strong>user</strong>.</p>
+
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Type</th>
+<th>Body</th>
+<th>Authorization</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/users/data</td>
+<td><strong>GET</strong></td>
+<td>None</td>
+<td>User</td>
+<td>ResponseModel[UserDTO]</td>
+</tr>
+</tbody>
+</table><h2 id="dtos-1">DTOs</h2>
+<p>This kind of model are used for <strong>communication</strong> between the <strong>frontend</strong> consuming app and the current <strong>API</strong>.</p>
+<h3 id="internal-index-1">Internal Index</h3>
+<ul>
+<li>
+<h4 id="changepassworddto"><a href="#ChangePasswordDTO">ChangePasswordDTO</a></h4>
+</li>
+<li>
+<h4 id="changephonedto"><a href="#ChangePhoneDTO">ChangePhoneDTO</a></h4>
+</li>
+<li>
+<h4 id="changeroledto"><a href="#ChangeRoleDTO">ChangeRoleDTO</a></h4>
+</li>
+<li>
+<h4 id="logindto"><a href="#LoginDTO">LoginDTO</a></h4>
+</li>
+<li>
+<h4 id="userdto"><a href="#UserDTO">UserDTO</a></h4>
+</li>
+<li>
+<h4 id="verificationemaildto"><a href="#VerificationEmailDTO">VerificationEmailDTO</a></h4>
+</li>
+</ul>
+<h3 id="changepassworddto-1">ChangePasswordDTO</h3>
+<p>This DTO is used for the <strong>change password</strong> workflow.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>email</td>
+<td>string</td>
+</tr>
+<tr>
+<td>phone</td>
+<td>string</td>
+</tr>
+<tr>
+<td>password</td>
+<td>string</td>
+</tr>
+</tbody>
+</table><h3 id="changephonedto-1">ChangePhoneDTO</h3>
+<p>This <strong>DTO</strong> is used for the <strong>change phone</strong> workflow.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>phone</td>
+<td>string</td>
+</tr>
+</tbody>
+</table><h3 id="changeroledto-1">ChangeRoleDTO</h3>
+<p>This <strong>DTO</strong> is used for the <strong>change role</strong> workflow.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>email</td>
+<td>string</td>
+</tr>
+<tr>
+<td>Role</td>
+<td>string</td>
+</tr>
+</tbody>
+</table><h3 id="logindto-1">LoginDTO</h3>
+<p>This <strong>DTO</strong> is used for the <strong>login</strong> workflow.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>email</td>
+<td>string</td>
+</tr>
+<tr>
+<td>password</td>
+<td>string</td>
+</tr>
+</tbody>
+</table><h3 id="notificationrequestdto">NotificationRequestDTO</h3>
+<p>This <strong>DTO</strong> is used for the <strong>notification</strong> workflow.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>Token</td>
+<td>string</td>
+</tr>
+<tr>
+<td>Title</td>
+<td>string</td>
+</tr>
+<tr>
+<td>Body</td>
+<td>string</td>
+</tr>
+<tr>
+<td>clickAction</td>
+<td>string</td>
+</tr>
+</tbody>
+</table><h3 id="registerdto">RegisterDTO</h3>
+<p>This <strong>DTO</strong> is used for the <strong>register</strong> workflow.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>email</td>
+<td>string</td>
+</tr>
+<tr>
+<td>password</td>
+<td>string</td>
+</tr>
+<tr>
+<td>firstName</td>
+<td>string</td>
+</tr>
+<tr>
+<td>lastName</td>
+<td>string</td>
+</tr>
+<tr>
+<td>phone</td>
+<td>string</td>
+</tr>
+</tbody>
+</table><h3 id="userdto-1">UserDTO</h3>
+<p>This <strong>DTO</strong> is used for the <strong>user</strong> workflow.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>email</td>
+<td>string</td>
+</tr>
+<tr>
+<td>role</td>
+<td>Role</td>
+</tr>
+<tr>
+<td>firstName</td>
+<td>string</td>
+</tr>
+<tr>
+<td>lastName</td>
+<td>string</td>
+</tr>
+</tbody>
+</table><h3 id="verificationemaildto-1">VerificationEmailDTO</h3>
+<p>This <strong>DTO</strong> is used for the <strong>email</strong> workflow.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>email</td>
+<td>string</td>
+</tr>
+<tr>
+<td>institute</td>
+<td>string</td>
+</tr>
+<tr>
+<td>route</td>
+<td>Role</td>
+</tr>
+<tr>
+<td>code</td>
+<td>int</td>
+</tr>
+</tbody>
+</table><h2 id="responses-1">Responses</h2>
+<p>This kind of model are used for <strong>communication</strong> between the <strong>frontend</strong> consuming app and the current <strong>API</strong> and are the standard response models for our application.</p>
+<h3 id="internal-index-2">Internal Index</h3>
+<ul>
+<li>
+<h4 id="response"><a href="#Response">Response</a></h4>
+</li>
+<li>
+<h4 id="responsemodel"><a href="#ResponseModel">ResponseModel</a></h4>
+</li>
+<li>
+<h4 id="responsecollection"><a href="#ResponseCollection">ResponseCollection</a></h4>
+</li>
+</ul>
+<h3 id="response-1">Response</h3>
+<p>This model is the <strong>standard</strong> for any kind of <strong>HTTP request response</strong> in the <strong>API</strong>.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>statusCode</td>
+<td>int</td>
+</tr>
+<tr>
+<td>message</td>
+<td>string</td>
+</tr>
+</tbody>
+</table><h3 id="responsemodel-1">ResponseModel</h3>
+<p>This model is <strong>designed</strong> to be used anytime when a <strong>HTTP request response</strong> needs to return a <strong>custom object</strong>, it does <strong>inherit</strong> from <strong>Response</strong>, adding a <strong>model field</strong>.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Inherits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>statusCode</td>
+<td>int</td>
+<td>Response</td>
+</tr>
+<tr>
+<td>message</td>
+<td>string</td>
+<td>Response</td>
+</tr>
+<tr>
+<td>model</td>
+<td>T</td>
+<td>None</td>
+</tr>
+</tbody>
+</table><h3 id="responsecollection-1">ResponseCollection</h3>
+<p>This model is <strong>designed</strong> to be used anytime when a <strong>HTTP request response</strong> needs to return a <strong>custom object collection</strong>, it does <strong>inherit</strong> from <strong>Response</strong>, adding a <strong>model field</strong>.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Inherits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>statusCode</td>
+<td>int</td>
+<td>Response</td>
+</tr>
+<tr>
+<td>message</td>
+<td>string</td>
+<td>Response</td>
+</tr>
+<tr>
+<td>model</td>
+<td>List[T]</td>
+<td>None</td>
+</tr>
+</tbody>
+</table><h2 id="entities-1">Entities</h2>
+<p>This models refers to the <strong>abstract representations</strong> of the <strong>tables</strong> the <strong>API</strong> has in the <strong>DB</strong> scheme.</p>
+<h3 id="internal-index-3">Internal Index</h3>
+<ul>
+<li>
+<h4 id="attendance"><a href="#Attendance">Attendance</a></h4>
+</li>
+<li>
+<h4 id="career"><a href="#Career">Career</a></h4>
+</li>
+<li>
+<h4 id="chore"><a href="#Chore">Chore</a></h4>
+</li>
+<li>
+<h4 id="comission"><a href="#Comission">Comission</a></h4>
+</li>
+<li>
+<h4 id="device"><a href="#Device">Device</a></h4>
+</li>
+<li>
+<h4 id="institute"><a href="#Institute">Institute</a></h4>
+</li>
+<li>
+<h4 id="makeup"><a href="#MakeUp">MakeUp</a></h4>
+</li>
+<li>
+<h4 id="notification"><a href="#Notification">Notification</a></h4>
+</li>
+<li>
+<h4 id="qrloginrequest"><a href="#QRLoginRequest">QRLoginRequest</a></h4>
+</li>
+<li>
+<h4 id="subject"><a href="#Subject">Subject</a></h4>
+</li>
+<li>
+<h4 id="user"><a href="#User">User</a></h4>
+</li>
+<li>
+<h4 id="userchores"><a href="#UserChores">UserChores</a></h4>
+</li>
+<li>
+<h4 id="userinstitutes"><a href="#UserInstitutes">UserInstitutes</a></h4>
+</li>
+<li>
+<h4 id="usermakeup"><a href="#UserMakeUp">UserMakeUp</a></h4>
+</li>
+<li>
+<h4 id="usernotification"><a href="#UserNotification">UserNotification</a></h4>
+</li>
+<li>
+<h4 id="usersubject"><a href="#UserSubject">UserSubject</a></h4>
+</li>
+<li>
+<h4 id="verificationcode"><a href="#VerificationCode">VerificationCode</a></h4>
+</li>
+</ul>
+<h3 id="attendance-1">Attendance</h3>
+<p>This entity refers to a single attendance in a specific subject.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>date</td>
+<td><strong>DateTime</strong></td>
+</tr>
+<tr>
+<td>userId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>User</td>
+<td><strong>User</strong></td>
+</tr>
+<tr>
+<td>SubjectId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>Subject</td>
+<td><strong>Subject</strong></td>
+</tr>
+</tbody>
+</table><h3 id="career-1">Career</h3>
+<p>This entity refers to a single career in a specific institute.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>studyPlan</td>
+<td>string</td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+</tr>
+<tr>
+<td>InstituteId</td>
+<td><strong>User</strong></td>
+</tr>
+<tr>
+<td>Institute</td>
+<td><strong>Institute</strong></td>
+</tr>
+<tr>
+<td>Comissions</td>
+<td>ICollection[<strong>Comission</strong>]</td>
+</tr>
+</tbody>
+</table><h3 id="chore-1">Chore</h3>
+<p>This entity refers to a single exam, activity, instance.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>title</td>
+<td>string</td>
+</tr>
+<tr>
+<td>expireDate</td>
+<td><strong>DateTime</strong></td>
+</tr>
+<tr>
+<td>requiredCalification</td>
+<td>float</td>
+</tr>
+<tr>
+<td>choreType</td>
+<td><strong>ChoreType</strong></td>
+</tr>
+<tr>
+<td>SubjectId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>Subject</td>
+<td><strong>Subject</strong></td>
+</tr>
+<tr>
+<td>UserChores</td>
+<td>IColeection[<strong>UserChores</strong>]</td>
+</tr>
+<tr>
+<td>MakeUp</td>
+<td>IColeection[<strong>MakeUp</strong>]</td>
+</tr>
+</tbody>
+</table><h3 id="comission-1">Comission</h3>
+<p>This entity refers to a single comission that is holded by a specific career.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>comissionNumber</td>
+<td>string</td>
+</tr>
+<tr>
+<td>CareerId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>requiredCalification</td>
+<td><strong>Career</strong></td>
+</tr>
+<tr>
+<td>Subjects</td>
+<td>IColeection[<strong>Subject</strong>]</td>
+</tr>
+</tbody>
+</table><h3 id="device-1">Device</h3>
+<p>This entity refers to a specific device linked to an user.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>token</td>
+<td>string</td>
+</tr>
+<tr>
+<td>UserId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>User</td>
+<td><strong>User</strong></td>
+</tr>
+</tbody>
+</table><h3 id="device-2">Device</h3>
+<p>This entity refers to a specific device linked to an user.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+</tr>
+<tr>
+<td>phone</td>
+<td>string</td>
+</tr>
+<tr>
+<td>email</td>
+<td>string</td>
+</tr>
+<tr>
+<td>UserInstitutes</td>
+<td>ICollection[<strong>UserInstitutes</strong>]</td>
+</tr>
+<tr>
+<td>Careers</td>
+<td>ICollection[<strong>Career</strong>]</td>
+</tr>
+</tbody>
+</table><h3 id="makeup-1">MakeUp</h3>
+<p>This entity refers to a chore makeup.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>title</td>
+<td>string</td>
+</tr>
+<tr>
+<td>expireDate</td>
+<td><strong>DateTime</strong></td>
+</tr>
+<tr>
+<td>requiredCalification</td>
+<td>float</td>
+</tr>
+<tr>
+<td>choreType</td>
+<td><strong>ChoreType</strong></td>
+</tr>
+<tr>
+<td>ChoreId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>Chore</td>
+<td><strong>Chore</strong></td>
+</tr>
+<tr>
+<td>UserMakeUps</td>
+<td>ICollection[<strong>UserMakeUps</strong>]</td>
+</tr>
+</tbody>
+</table><h3 id="notification-1">Notification</h3>
+<p>This entity refers to a specific local notification.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>Title</td>
+<td>string</td>
+</tr>
+<tr>
+<td>Body</td>
+<td>string</td>
+</tr>
+<tr>
+<td>UserNotifications</td>
+<td>ICollection[<strong>UserNotifications</strong>]</td>
+</tr>
+</tbody>
+</table><h3 id="qrloginrequest-1">QRLoginRequest</h3>
+<p>This entity refers to the requests that are needed for QR login.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>code</td>
+<td>string</td>
+</tr>
+<tr>
+<td>email</td>
+<td>string</td>
+</tr>
+<tr>
+<td>isActive</td>
+<td>bool</td>
+</tr>
+<tr>
+<td>createdDate</td>
+<td><strong>DateTime</strong></td>
+</tr>
+</tbody>
+</table><h3 id="subject-1">Subject</h3>
+<p>This entity refers to an specific career subject.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+</tr>
+<tr>
+<td>classDate</td>
+<td><strong>DayOfWeek</strong></td>
+</tr>
+<tr>
+<td>ComissionId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>Comission</td>
+<td><strong>Comission</strong></td>
+</tr>
+<tr>
+<td>Attendances</td>
+<td>ICollection[<strong>Attendances</strong>]</td>
+</tr>
+<tr>
+<td>UserSubjects</td>
+<td>ICollection[<strong>UserSubject</strong>]</td>
+</tr>
+<tr>
+<td>Chores</td>
+<td>ICollection[<strong>Chore</strong>]</td>
+</tr>
+</tbody>
+</table><h3 id="user-1">User</h3>
+<p>This entity refers to an specific app user.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>email</td>
+<td>string</td>
+</tr>
+<tr>
+<td>phone</td>
+<td>string</td>
+</tr>
+<tr>
+<td>hash</td>
+<td>byte[]</td>
+</tr>
+<tr>
+<td>salt</td>
+<td>byte[]</td>
+</tr>
+<tr>
+<td>role</td>
+<td><strong>Role</strong></td>
+</tr>
+<tr>
+<td>firstName</td>
+<td>string</td>
+</tr>
+<tr>
+<td>lastName</td>
+<td>string</td>
+</tr>
+<tr>
+<td>UserNotifications</td>
+<td>ICollection[<strong>UserNotification</strong>]</td>
+</tr>
+<tr>
+<td>VerificationCodes</td>
+<td>ICollection[<strong>VerificationCode</strong>]</td>
+</tr>
+<tr>
+<td>UserInstitutes</td>
+<td>ICollection[<strong>UserInstitute</strong>]</td>
+</tr>
+<tr>
+<td>Devices</td>
+<td>ICollection[<strong>Device</strong>]</td>
+</tr>
+<tr>
+<td>Attendances</td>
+<td>ICollection[<strong>Attendance</strong>]</td>
+</tr>
+<tr>
+<td>UserSubjects</td>
+<td>ICollection[<strong>UserSubject</strong>]</td>
+</tr>
+<tr>
+<td>UserChores</td>
+<td>ICollection[<strong>UserChores</strong>]</td>
+</tr>
+<tr>
+<td>UserMakeUps</td>
+<td>ICollection[<strong>UserMakeUp</strong>]</td>
+</tr>
+</tbody>
+</table><h3 id="userchores-1">UserChores</h3>
+<p>This entity refers to the relation between User and Chores.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>calification</td>
+<td>float</td>
+</tr>
+<tr>
+<td>status</td>
+<td><strong>ChoreStatus</strong></td>
+</tr>
+<tr>
+<td>ChoreId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>Chore</td>
+<td><strong>Chore</strong></td>
+</tr>
+<tr>
+<td>UserId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>User</td>
+<td><strong>User</strong></td>
+</tr>
+</tbody>
+</table><h3 id="userinstitute">UserInstitute</h3>
+<p>This entity refers to the relation between User and Institute.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>InstituteId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>Institute</td>
+<td><strong>Institute</strong></td>
+</tr>
+<tr>
+<td>UserId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>User</td>
+<td><strong>User</strong></td>
+</tr>
+</tbody>
+</table><h3 id="usermakeup-1">UserMakeUp</h3>
+<p>This entity refers to the relation between User and MakeUp.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>calification</td>
+<td>float</td>
+</tr>
+<tr>
+<td>status</td>
+<td><strong>ChoreStatus</strong></td>
+</tr>
+<tr>
+<td>MakeUpId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>MakeUp</td>
+<td><strong>MakeUp</strong></td>
+</tr>
+<tr>
+<td>UserId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>User</td>
+<td><strong>User</strong></td>
+</tr>
+</tbody>
+</table><h3 id="usernotification-1">UserNotification</h3>
+<p>This entity refers to the relation between User and Notifications.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>UserId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>User</td>
+<td><strong>User</strong></td>
+</tr>
+<tr>
+<td>NotificationsId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>Notifications</td>
+<td><strong>Notifications</strong></td>
+</tr>
+</tbody>
+</table><h3 id="usersubject-1">UserSubject</h3>
+<p>This entity refers to the relation between User and Subject.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>UserId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>User</td>
+<td><strong>User</strong></td>
+</tr>
+<tr>
+<td>SubjectId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>Subject</td>
+<td><strong>Subject</strong></td>
+</tr>
+</tbody>
+</table><h3 id="verificationcode-1">VerificationCode</h3>
+<p>This entity refers to the created verification codes that are created whenever an email is sent.</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Id</td>
+<td>int</td>
+</tr>
+<tr>
+<td>code</td>
+<td><strong>DateTime</strong></td>
+</tr>
+<tr>
+<td>createdDate</td>
+<td><strong>User</strong></td>
+</tr>
+<tr>
+<td>UserId</td>
+<td>int</td>
+</tr>
+<tr>
+<td>User</td>
+<td><strong>User</strong></td>
+</tr>
+</tbody>
+</table><h2 id="enums-1">Enums</h2>
+<p>This models refers to an specific kind of model that has previously set values.</p>
+<h3 id="internal-index-4">Internal Index</h3>
+<ul>
+<li>
+<h4 id="attendancestatus"><a href="#AttendanceStatus">AttendanceStatus</a></h4>
+</li>
+<li>
+<h4 id="chorestatus"><a href="#ChoreStatus">ChoreStatus</a></h4>
+</li>
+<li>
+<h4 id="choretype"><a href="#ChoreType">ChoreType</a></h4>
+</li>
+<li>
+<h4 id="role"><a href="#Role">Role</a></h4>
+</li>
+</ul>
+<h3 id="attendancestatus-1">AttendanceStatus</h3>
+<p>This model refers to the status of an attendance.</p>
+
+<table>
+<thead>
+<tr>
+<th>Position</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0</strong></td>
+<td>PRESENT</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>ABSENT</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>JUSTIFIED</td>
+</tr>
+</tbody>
+</table><h3 id="chorestatus-1">ChoreStatus</h3>
+<p>This model refers to the status of a chorus.</p>
+
+<table>
+<thead>
+<tr>
+<th>Position</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0</strong></td>
+<td>PASSED</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>NOTPASSED</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>PENDING</td>
+</tr>
+</tbody>
+</table><h3 id="choretype-1">ChoreType</h3>
+<p>This model refers to the type of a chorus.</p>
+
+<table>
+<thead>
+<tr>
+<th>Position</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0</strong></td>
+<td>TP</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>TEST</td>
+</tr>
+</tbody>
+</table><h3 id="role-1">Role</h3>
+<p>This model refers to the role of an user.</p>
+
+<table>
+<thead>
+<tr>
+<th>Position</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0</strong></td>
+<td>STUDENT</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>TEACHER</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>PRECEPTOR</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>ADMIN</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>SUPERADMIN</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td>NA</td>
+</tr>
+</tbody>
+</table><h2 id="tools-1">Tools</h2>
+<p>This section refers to the multiple <strong>helper classes</strong> that the <strong>API</strong> has for <strong>internal</strong> use.</p>
+<h3 id="internal-index-5">Internal Index</h3>
+<ul>
+<li>
+<h4 id="encrypter"><a href="#Encrypter">Encrypter</a></h4>
+</li>
+<li>
+<h4 id="qrcleaning"><a href="#QRCleaning">QRCleaning</a></h4>
+</li>
+</ul>
+<h3 id="encrypter-1">Encrypter</h3>
+<p>This tool is in charge of encrypt and validate text.</p>
+<h4 id="attributes">Attributes</h4>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table><h4 id="methods">Methods</h4>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EncryptString</td>
+<td>void</td>
+<td>string text, out byte[] hash, out byte[] salt</td>
+<td>This method encrypts the given text resulting a hash and a salt.</td>
+</tr>
+<tr>
+<td>ValidateText</td>
+<td>bool</td>
+<td>string text, byte[] hash, byte[] salt</td>
+<td>This method validates the given text encrypting it with the given salt expecting the result to be equal to the given hash, it returns that equation.</td>
+</tr>
+</tbody>
+</table><h3 id="qrcleaning-1">QRCleaning</h3>
+<p>This tool is in charge of cleaning all non valid QRLoginRequest from the DB.</p>
+<h4 id="attributes-1">Attributes</h4>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_serviceScopeFactory</td>
+<td>IServiceScopeFactory</td>
+</tr>
+<tr>
+<td>_disposed</td>
+<td>bool</td>
+</tr>
+</tbody>
+</table><h4 id="methods-1">Methods</h4>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Clean</td>
+<td>void</td>
+<td>None</td>
+<td>This method cleans all the non valid QRLoginRequest from the DB.</td>
+</tr>
+<tr>
+<td>Dispose</td>
+<td>void</td>
+<td>None</td>
+<td>This method disposes the specific instances freeing resources.</td>
+</tr>
+</tbody>
+</table></div>
+</body>
+
+</html>
